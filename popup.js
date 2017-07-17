@@ -17,17 +17,23 @@ document.addEventListener('DOMContentLoaded', function() {
                 var xmlDoc = parser.parseFromString(http.responseText, "text/xml");
                 var title = xmlDoc.getElementsByTagName("title")[0].innerHTML;
                 if (title == null) title = "video"
-                var videoUrl = xmlDoc.getElementsByTagName("url")[0].innerHTML;
-                if (videoUrl == null) return;
+                var urls = xmlDoc.getElementsByTagName("url");
+                for(elem of urls) {
+                    var videoUrl = elem.innerHTML;
+                    if (videoUrl == null) return;
+                    if(videoUrl.indexOf("http") !== -1 && videoUrl.indexOf("Screen.flv") !== -1) {
+                        var downloadButton = document.getElementById('downloadButton');
+                        downloadButton.disabled = false;
+                        downloadButton.addEventListener('click', function() {
+                            chrome.downloads.download({
+                                url: videoUrl,
+                                filename: title + ".flv"
+                            });
+                        });
+                        break;
+                    }
+                }
                 
-                var downloadButton = document.getElementById('downloadButton');
-                downloadButton.disabled = false;
-                downloadButton.addEventListener('click', function() {
-                    chrome.downloads.download({
-  	                     url: videoUrl,
-  	                     filename: title + ".flv"
-                    });
-                });
             }
         }
         http.send(null);
