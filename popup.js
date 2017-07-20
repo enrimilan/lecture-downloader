@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 for(elem of urls) {
                     var videoUrl = elem.innerHTML;
                     if (videoUrl == null) return;
-                    if(videoUrl.indexOf("http") !== -1 && videoUrl.indexOf("Screen.flv") !== -1) {
+                    if(videoUrl.match("https?:\/\/.*\/[S|s]creen.*\.flv")) {
                         var downloadButton = document.getElementById('downloadButton');
                         downloadButton.disabled = false;
                         downloadButton.addEventListener('click', function() {
