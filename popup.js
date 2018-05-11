@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     chrome.tabs.getSelected(null, function(tab) {
+		
+		var downloadButton = document.getElementById('downloadButton');
         
         // parse opencast host and id of the lecture, may be adapted according to your needs
         var url = tab.url;
@@ -22,7 +24,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     var videoUrl = elem.innerHTML;
                     if (videoUrl == null) return;
                     if(videoUrl.match("https?:\/\/.*\/[S|s]creen.*\.flv")) {
-                        var downloadButton = document.getElementById('downloadButton');
+                        
                         downloadButton.disabled = false;
                         downloadButton.addEventListener('click', function() {
                             chrome.downloads.download({
@@ -36,6 +38,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 
             }
         }
+		
+		// try another host
+		if(downloadButton.disabled) {
+			var http = new XMLHttpRequest();
+			var params = "id="+id;
+			http.open("GET", "https://oc-presentation.ltcc.tuwien.ac.at/search/episode.json?"+params, true);
+			http.onreadystatechange = function() {
+				if (http.readyState == 4 && http.status == 200) {
+					var json = JSON.parse(http.responseText)
+					var videoUrl = json["search-results"].result.mediapackage.media.track[0].url
+					var title = json["search-results"].result.mediapackage.title
+					downloadButton.disabled = false;
+                    downloadButton.addEventListener('click', function() {
+						chrome.downloads.download({
+							url: videoUrl,
+                            filename: title + ".mp4"
+                        });
+                    });
+				}
+			}
+		
+		}
+		
         http.send(null);
     }); 
 });
